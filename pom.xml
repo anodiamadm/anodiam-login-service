@@ -25,27 +25,16 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
-		<!--Google Cloud-->
-		<dependency>
-			<groupId>com.google.cloud</groupId>
-			<artifactId>spring-cloud-gcp-secretmanager</artifactId>
-			<version>3.1.0</version>
-		</dependency>
-
+		<!-- PostgreSQL -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-
-		<!-- PostgreSQL -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>42.4.0</version>
 		</dependency>
-
-
 		<!--  Security  -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -60,16 +49,13 @@
 			<artifactId>java-jwt</artifactId>
 			<version>3.4.1</version>
 		</dependency>
-
 		<!--  Test  -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
     </dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
