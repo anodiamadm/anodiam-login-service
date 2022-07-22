@@ -1,0 +1,12 @@
+package com.anodiam.StudentSignup.serviceRepository.Role;
+
+import com.anodiam.StudentSignup.model.Role;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface RoleRepository extends JpaRepository<Role, Long> {
+    Optional<Role> findByRoleName(String roleName);
+}
