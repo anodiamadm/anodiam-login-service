@@ -1,23 +1,20 @@
 package com.anodiam.login.security.services;
 
+import com.anodiam.login.models.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import com.anodiam.login.models.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class UserDetailsImpl implements UserDetails {
   private static final long serialVersionUID = 1L;
 
   private Long id;
-
-  private String username;
 
   private String email;
 
@@ -26,10 +23,9 @@ public class UserDetailsImpl implements UserDetails {
 
   private Collection<? extends GrantedAuthority> authorities;
 
-  public UserDetailsImpl(Long id, String username, String email, String password,
+  public UserDetailsImpl(Long id, String email, String password,
       Collection<? extends GrantedAuthority> authorities) {
     this.id = id;
-    this.username = username;
     this.email = email;
     this.password = password;
     this.authorities = authorities;
@@ -42,7 +38,6 @@ public class UserDetailsImpl implements UserDetails {
 
     return new UserDetailsImpl(
         user.getId(), 
-        user.getUsername(), 
         user.getEmail(),
         user.getPassword(), 
         authorities);
@@ -57,10 +52,6 @@ public class UserDetailsImpl implements UserDetails {
     return id;
   }
 
-  public String getEmail() {
-    return email;
-  }
-
   @Override
   public String getPassword() {
     return password;
@@ -68,7 +59,7 @@ public class UserDetailsImpl implements UserDetails {
 
   @Override
   public String getUsername() {
-    return username;
+    return email;
   }
 
   @Override

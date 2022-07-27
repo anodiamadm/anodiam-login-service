@@ -1,13 +1,14 @@
 package com.anodiam.login.controllers;
 
-import com.anodiam.login.models.AnodiamRole;
-import com.anodiam.login.models.Role;
-import com.anodiam.login.models.User;
+import com.anodiam.login.models.*;
+import com.anodiam.login.notification.EmailDetails;
+import com.anodiam.login.notification.EmailService;
 import com.anodiam.login.payload.request.LoginRequest;
 import com.anodiam.login.payload.request.SignupRequest;
 import com.anodiam.login.payload.response.JwtResponse;
 import com.anodiam.login.payload.response.MessageResponse;
 import com.anodiam.login.repository.RoleRepository;
+import com.anodiam.login.repository.SignupUserRepository;
 import com.anodiam.login.repository.UserRepository;
 import com.anodiam.login.security.jwt.JwtUtils;
 import com.anodiam.login.security.services.UserDetailsImpl;
@@ -21,103 +22,116 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-  @Autowired
-  AuthenticationManager authenticationManager;
+    @Autowired
+    AuthenticationManager authenticationManager;
 
-  @Autowired
-  UserRepository userRepository;
+    @Autowired
+    UserRepository userRepository;
 
-  @Autowired
-  RoleRepository roleRepository;
+    @Autowired
+    SignupUserRepository signupUserRepository;
 
-  @Autowired
-  PasswordEncoder encoder;
+    @Autowired
+    RoleRepository roleRepository;
 
-  @Autowired
-  JwtUtils jwtUtils;
+    @Autowired
+    EmailService emailService;
 
-  @PostMapping("/signin")
-  public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    @Autowired
+    PasswordEncoder encoder;
 
-    Authentication authentication = authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+    @Autowired
+    JwtUtils jwtUtils;
 
-    SecurityContextHolder.getContext().setAuthentication(authentication);
-    String jwt = jwtUtils.generateJwtToken(authentication);
-    
-    UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();    
-    List<String> roles = userDetails.getAuthorities().stream()
-        .map(item -> item.getAuthority())
-        .collect(Collectors.toList());
+    @PostMapping("/signin")
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
-    return ResponseEntity.ok(new JwtResponse(jwt, 
-                         userDetails.getId(), 
-                         userDetails.getUsername(), 
-                         userDetails.getEmail(), 
-                         roles));
-  }
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-  @PostMapping("/signup")
-  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-    if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-      return ResponseEntity
-          .badRequest()
-          .body(new MessageResponse("Error: Username is already taken!"));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = jwtUtils.generateJwtToken(authentication);
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(item -> item.getAuthority())
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new JwtResponse(jwt,
+                userDetails.getId(),
+                userDetails.getUsername(),
+                roles));
     }
 
-    if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-      return ResponseEntity
-          .badRequest()
-          .body(new MessageResponse("Error: Email is already in use!"));
-    }
+    @PostMapping("/signup/{role}")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest, @Valid @NotNull @PathVariable("role") AnodiamRole role) {
 
-    // Create new user's account
-    User user = new User(signUpRequest.getUsername(), 
-               signUpRequest.getEmail(),
-               encoder.encode(signUpRequest.getPassword()));
-
-    Set<String> strRoles = signUpRequest.getRole();
-    Set<Role> roles = new HashSet<>();
-
-    if (strRoles == null) {
-      Role userRole = roleRepository.findByName(AnodiamRole.ROLE_STUDENT)
-          .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-      roles.add(userRole);
-    } else {
-      strRoles.forEach(role -> {
-        switch (role) {
-        case "admin":
-          Role adminRole = roleRepository.findByName(AnodiamRole.ROLE_ADMIN)
-              .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-          roles.add(adminRole);
-
-          break;
-        case "teacher":
-          Role modRole = roleRepository.findByName(AnodiamRole.ROLE_TEACHER)
-              .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-          roles.add(modRole);
-
-          break;
-        default:
-          Role userRole = roleRepository.findByName(AnodiamRole.ROLE_STUDENT)
-              .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-          roles.add(userRole);
+        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Email is already in use!"));
         }
-      });
+
+
+
+        String jwt = jwtUtils.generateJwtToken(signUpRequest.getEmail());
+
+        // Create new user's account
+        SignupUser user = new SignupUser(signUpRequest.getEmail(),
+                encoder.encode(signUpRequest.getPassword()),
+                jwt,
+                role);
+
+        signupUserRepository.save(user);
+
+        emailService.sendSimpleMail(
+                EmailDetails.builder()
+                        .recipient(signUpRequest.getEmail())
+                        .subject("Anodiam signup confirmation")
+                        .msgBody("<p>Please <a href=\"http://localhost:8080/api/auth/validate?_t=" + new String(Base64.getEncoder().withoutPadding().encode(jwt.getBytes(StandardCharsets.UTF_8))) + "\">Validate</a> your registration</p>")
+                        .build());
+        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
-    user.setRoles(roles);
-    userRepository.save(user);
+    @GetMapping("/validate")
+    public ResponseEntity<?> validateUser(@RequestParam("_t") final String token) {
+        String jwt = new String(Base64.getDecoder().decode(token.getBytes(StandardCharsets.UTF_8)));
+        String email = jwtUtils.getUserNameFromJwtToken(jwt);
+        SignupUser signupUser = signupUserRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Error: Registration is not found."));
+        User user = new User(signupUser.getEmail(), signupUser.getEmail(), signupUser.getPassword());
 
-    return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
-  }
+        Set<Role> roles = new HashSet<>();
+
+        switch (signupUser.getRole().name().toLowerCase()) {
+            case "admin":
+                Role adminRole = roleRepository.findByName(AnodiamRole.ADMIN)
+                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                roles.add(adminRole);
+
+                break;
+            case "teacher":
+                Role modRole = roleRepository.findByName(AnodiamRole.TEACHER)
+                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                roles.add(modRole);
+
+                break;
+            default:
+                Role userRole = roleRepository.findByName(AnodiamRole.STUDENT)
+                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                roles.add(userRole);
+        }
+
+        user.setRoles(roles);
+        userRepository.save(user);
+        return ResponseEntity.ok(new MessageResponse("User validated successfully!"));
+    }
 }
