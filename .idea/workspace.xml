@@ -4,26 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4ee98a2e-09fd-4ea9-83b1-4a721b99d50e" name="Changes" comment="Spring JWT security implemented">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/anodiam/login/models/SignupUser.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/anodiam/login/models/UserTypes.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/anodiam/login/notification/EmailDetails.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/anodiam/login/notification/EmailService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/anodiam/login/notification/EmailServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/anodiam/login/repository/SignupUserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_auth0_java_jwt_3_4_1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__commons_codec_commons_codec_1_15.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_thymeleaf_extras_thymeleaf_extras_springsecurity5_3_0_4_RELEASE.xml" beforeDir="false" />
+    <list default="true" id="4ee98a2e-09fd-4ea9-83b1-4a721b99d50e" name="Changes" comment="email integration completed">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/anodiam-login-service.iml" beforeDir="false" afterPath="$PROJECT_DIR$/anodiam-login-service.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/anodiam/login/controllers/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/anodiam/login/controllers/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/anodiam/login/models/AnodiamRole.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/anodiam/login/models/AnodiamRole.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/anodiam/login/payload/request/SignupRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/anodiam/login/payload/request/SignupRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/anodiam/login/payload/response/JwtResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/anodiam/login/payload/response/JwtResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/anodiam/login/security/jwt/JwtUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/anodiam/login/security/jwt/JwtUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/anodiam/login/security/services/UserDetailsImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/anodiam/login/security/services/UserDetailsImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -92,9 +74,10 @@
     </key>
   </component>
   <component name="RunManager">
-    <configuration name="AnodiamLoginApplication" type="Application" factoryName="Application" nameIsGenerated="true">
+    <configuration name="com.anodiam.login.AnodiamLoginApplication" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.anodiam.login.AnodiamLoginApplication" />
       <module name="anodiam-login-service" />
+      <option name="VM_PARAMETERS" value="-DDB_SECRET=Anodiam@123 -DSMTP_SECRET=Anodiam@123 -DBCRYPT_SALT=Comple#$alt -DJWT_SECRET=6omple*5ecr3t" />
       <extension name="com.egoshard.intellij.k8s-runtime-config-plugin">
         <option name="ENABLED" value="false" />
         <entries />
@@ -140,7 +123,14 @@
       <option name="project" value="LOCAL" />
       <updated>1658897631644</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="email integration completed">
+      <created>1658929962636</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1658929962636</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -186,7 +176,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Anirban first commit" />
     <MESSAGE value="Spring JWT security implemented" />
-    <option name="LAST_COMMIT_MESSAGE" value="Spring JWT security implemented" />
+    <MESSAGE value="email integration completed" />
+    <option name="LAST_COMMIT_MESSAGE" value="email integration completed" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
