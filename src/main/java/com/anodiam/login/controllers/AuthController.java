@@ -1,8 +1,12 @@
 package com.anodiam.login.controllers;
 
+import com.anodiam.login.exception.InvalidTokenException;
+import com.anodiam.login.exception.RoleNotFoundException;
+import com.anodiam.login.exception.UserNotFoundException;
 import com.anodiam.login.models.*;
 import com.anodiam.login.notification.EmailDetails;
 import com.anodiam.login.notification.EmailService;
+import com.anodiam.login.notification.MessageContentBuilder;
 import com.anodiam.login.payload.request.LoginRequest;
 import com.anodiam.login.payload.request.SignupRequest;
 import com.anodiam.login.payload.response.JwtResponse;
@@ -13,6 +17,7 @@ import com.anodiam.login.repository.UserRepository;
 import com.anodiam.login.security.jwt.JwtUtils;
 import com.anodiam.login.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,25 +37,28 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/auth")
 public class AuthController {
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    SignupUserRepository signupUserRepository;
+    private SignupUserRepository signupUserRepository;
 
     @Autowired
-    RoleRepository roleRepository;
+    private RoleRepository roleRepository;
 
     @Autowired
-    EmailService emailService;
+    private EmailService emailService;
 
     @Autowired
-    PasswordEncoder encoder;
+    private PasswordEncoder encoder;
 
     @Autowired
-    JwtUtils jwtUtils;
+    private JwtUtils jwtUtils;
+
+    @Value("${anodiam.mail.base-url}")
+    private String baseUrl;
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -96,8 +104,8 @@ public class AuthController {
         emailService.sendSimpleMail(
                 EmailDetails.builder()
                         .recipient(signUpRequest.getEmail())
-                        .subject("Anodiam signup confirmation")
-                        .msgBody("<p>Please <a href=\"http://localhost:8080/api/auth/validate?_t=" + new String(Base64.getEncoder().withoutPadding().encode(jwt.getBytes(StandardCharsets.UTF_8))) + "\">Validate</a> your registration</p>")
+                        .subject("Anodiam Registration Confirmation")
+                        .msgBody(MessageContentBuilder.builder().baseUrl(baseUrl).validationToken(jwt).build().getMessageContent())
                         .build());
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
@@ -105,10 +113,13 @@ public class AuthController {
     @GetMapping("/validate")
     public ResponseEntity<?> validateUser(@RequestParam("_t") final String token) {
         String jwt = new String(Base64.getDecoder().decode(token.getBytes(StandardCharsets.UTF_8)));
+        if(!jwtUtils.validateJwtToken(jwt)) {
+            throw new InvalidTokenException("Error: Invalid Token");
+        }
         String email = jwtUtils.getUserNameFromJwtToken(jwt);
-        SignupUser signupUser = signupUserRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Error: Registration is not found."));
+        SignupUser signupUser = signupUserRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("Error: Registration is not found."));
         if(!jwt.equals(signupUser.getValidationToken())) {
-            throw new RuntimeException("Error: Registration is not found - Invalid Token");
+            throw new InvalidTokenException("Error: Invalid Token");
         }
         User user = new User(signupUser.getEmail(), signupUser.getPassword());
 
@@ -117,24 +128,25 @@ public class AuthController {
         switch (signupUser.getRole().name().toLowerCase()) {
             case "admin":
                 Role adminRole = roleRepository.findByName(AnodiamRole.ADMIN)
-                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        .orElseThrow(() -> new RoleNotFoundException("Error: Role is not found."));
                 roles.add(adminRole);
 
                 break;
             case "teacher":
                 Role modRole = roleRepository.findByName(AnodiamRole.TEACHER)
-                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        .orElseThrow(() -> new RoleNotFoundException("Error: Role is not found."));
                 roles.add(modRole);
 
                 break;
             default:
                 Role userRole = roleRepository.findByName(AnodiamRole.STUDENT)
-                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        .orElseThrow(() -> new RoleNotFoundException("Error: Role is not found."));
                 roles.add(userRole);
         }
 
         user.setRoles(roles);
         userRepository.save(user);
+        signupUserRepository.deleteById(signupUser.getId());
         return ResponseEntity.ok(new MessageResponse("User validated successfully!"));
     }
 }
