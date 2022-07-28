@@ -28,6 +28,7 @@ public class SignupUser {
   private String password;
 
   @NotNull
+  @Enumerated(EnumType.STRING)
   private AnodiamRole role;
 
   @NotBlank

@@ -107,7 +107,10 @@ public class AuthController {
         String jwt = new String(Base64.getDecoder().decode(token.getBytes(StandardCharsets.UTF_8)));
         String email = jwtUtils.getUserNameFromJwtToken(jwt);
         SignupUser signupUser = signupUserRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Error: Registration is not found."));
-        User user = new User(signupUser.getEmail(), signupUser.getEmail(), signupUser.getPassword());
+        if(!jwt.equals(signupUser.getValidationToken())) {
+            throw new RuntimeException("Error: Registration is not found - Invalid Token");
+        }
+        User user = new User(signupUser.getEmail(), signupUser.getPassword());
 
         Set<Role> roles = new HashSet<>();
 
