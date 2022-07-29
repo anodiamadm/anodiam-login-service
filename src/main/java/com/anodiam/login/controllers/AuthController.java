@@ -80,7 +80,7 @@ public class AuthController {
                 roles));
     }
 
-    @PostMapping("/signup/{role}")
+    @PutMapping("/signup/{role}")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest, @Valid @NotNull @PathVariable("role") AnodiamRole role) {
 
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
