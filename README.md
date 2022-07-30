@@ -1,2 +1,2 @@
 # anodiam-login-service
-______________________
+User Registration, Login, Logout, Change / Forget password
