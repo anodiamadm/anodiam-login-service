@@ -1,0 +1,49 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anodiam-login-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: anodiam-login-service
+  template:
+    metadata:
+      labels:
+        app: anodiam-login-service
+    spec:
+      containers:
+        - name: anodiam-login-service
+          image: us-central1-docker.pkg.dev/anodiamgcpproject/anodiam-repo/anodiam-login-service:v5
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "h2"
+            - name: BASE_URL
+              value: "http://35.226.152.212"
+            - name: BCRYPT_SALT
+              valueFrom:
+                secretKeyRef:
+                  name: anodiam-secrets
+                  key: BCRYPT_SALT
+                  optional: false
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: anodiam-secrets
+                  key: JWT_SECRET
+                  optional: false
+            - name: DB_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: anodiam-secrets
+                  key: DB_SECRET
+                  optional: false
+            - name: SMTP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: anodiam-secrets
+                  key: SMTP_SECRET
+                  optional: false
