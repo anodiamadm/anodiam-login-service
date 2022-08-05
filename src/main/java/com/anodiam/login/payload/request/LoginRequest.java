@@ -3,6 +3,7 @@ package com.anodiam.login.payload.request;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -11,9 +12,11 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class LoginRequest {
     @NotBlank
-    private String username;
+    @Size(max = 50)
+    private String email;
 
     @NotBlank
+    @Size(max = 120)
     private String password;
 
 }

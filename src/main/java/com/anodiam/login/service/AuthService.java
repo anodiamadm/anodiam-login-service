@@ -64,29 +64,8 @@ public class AuthService {
         this.jwtUtils = jwtUtils;
     }
 
-    public JwtResponse authenticateUser(final LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
-
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
-
-        return JwtResponse.builder()
-                .type(JwtResponse.TOKEN_TYPE)
-                .token(jwt)
-                .id(userDetails.getId())
-                .username(userDetails.getUsername())
-                .roles(roles)
-                .build();
-    }
-
     public MessageResponse registerUser(final SignupRequest signUpRequest, final AnodiamRole role) throws EmailInUseException {
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+        if (userRepository.existsByEmail(signUpRequest.getEmail()) || signupUserRepository.existsByEmail(signUpRequest.getEmail())) {
             throw new EmailInUseException("Error: Email is already in use!");
         }
 
@@ -160,5 +139,26 @@ public class AuthService {
         userRepository.save(user);
         signupUserRepository.deleteById(signupUser.getId());
         return new MessageResponse("User validated successfully!");
+    }
+
+    public JwtResponse authenticateUser(final LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = jwtUtils.generateJwtToken(authentication);
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(item -> item.getAuthority())
+                .collect(Collectors.toList());
+
+        return JwtResponse.builder()
+                .type(JwtResponse.TOKEN_TYPE)
+                .token(jwt)
+                .id(userDetails.getId())
+                .username(userDetails.getUsername())
+                .roles(roles)
+                .build();
     }
 }
