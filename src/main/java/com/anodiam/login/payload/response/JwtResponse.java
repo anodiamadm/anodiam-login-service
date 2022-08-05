@@ -1,5 +1,6 @@
 package com.anodiam.login.payload.response;
 
+import com.anodiam.core.JwtToken;
 import lombok.*;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 @Builder
 public class JwtResponse {
   public static final String TOKEN_TYPE = "Bearer";
-  private String token;
+  private JwtToken token;
   private String type = TOKEN_TYPE;
   private Long id;
   private String username;

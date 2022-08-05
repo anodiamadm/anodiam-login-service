@@ -1,11 +1,10 @@
 package com.anodiam.login.security.jwt;
 
-import com.anodiam.login.security.services.UserDetailsImpl;
+import com.anodiam.core.JwtToken;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -20,34 +19,22 @@ public class JwtUtils {
   @Value("${jwt.app.expiration.ms}")
   private long jwtExpirationMs;
 
-  public String generateJwtToken(Authentication authentication) {
-
-    UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-
-    return Jwts.builder()
-        .setSubject((userPrincipal.getUsername()))
-        .setIssuedAt(new Date())
-        .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-        .signWith(SignatureAlgorithm.HS512, jwtSecret)
-        .compact();
+  public JwtToken generateJwtToken(String subject) {
+    return generateJwtToken(subject, jwtExpirationMs);
   }
 
-  public String generateJwtToken(String subject) {
-    return Jwts.builder()
-            .setSubject(subject)
-            .setIssuedAt(new Date())
-            .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-            .signWith(SignatureAlgorithm.HS512, jwtSecret)
-            .compact();
-  }
-
-  public String generateJwtToken(String subject, long jwtExpirationMs) {
-    return Jwts.builder()
-            .setSubject(subject)
-            .setIssuedAt(new Date())
-            .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-            .signWith(SignatureAlgorithm.HS512, jwtSecret)
-            .compact();
+  public JwtToken generateJwtToken(String subject, long jwtExpirationMs) {
+    final Date now = new Date();
+    final Date expiresOn = new Date(now.getTime() + jwtExpirationMs);
+    return JwtToken.builder()
+            .token(Jwts.builder()
+                    .setSubject(subject)
+                    .setIssuedAt(now)
+                    .setExpiration(expiresOn)
+                    .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                    .compact())
+            .expiresOn(expiresOn)
+            .build();
   }
 
   public String getUserNameFromJwtToken(String token) {

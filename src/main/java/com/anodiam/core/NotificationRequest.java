@@ -11,7 +11,7 @@ public class NotificationRequest {
     private String recipientEmail;
     private String recipientFirstName;
     private String recipientLastName;
-    private String validationToken;
+    private JwtToken validationToken;
     private String subject;
     private String attachment;
     private NotificationType notificationType;

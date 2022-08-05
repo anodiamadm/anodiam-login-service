@@ -1,13 +1,11 @@
 package com.anodiam.login.service;
 
+import com.anodiam.core.JwtToken;
 import com.anodiam.login.exception.EmailInUseException;
 import com.anodiam.login.exception.InvalidTokenException;
 import com.anodiam.login.exception.RoleNotFoundException;
 import com.anodiam.login.exception.UserNotFoundException;
-import com.anodiam.login.models.AnodiamRole;
-import com.anodiam.login.models.Role;
-import com.anodiam.login.models.SignupUser;
-import com.anodiam.login.models.User;
+import com.anodiam.login.models.*;
 import com.anodiam.login.payload.request.LoginRequest;
 import com.anodiam.core.NotificationRequest;
 import com.anodiam.login.payload.request.SignupRequest;
@@ -69,7 +67,7 @@ public class AuthService {
             throw new EmailInUseException("Error: Email is already in use!");
         }
 
-        String jwt = jwtUtils.generateJwtToken(signUpRequest.getEmail());
+        JwtToken jwtToken = jwtUtils.generateJwtToken(signUpRequest.getEmail());
 
         // Create new user's account
         SignupUser user = SignupUser.builder()
@@ -79,7 +77,7 @@ public class AuthService {
                 .refererEmail(signUpRequest.getRefererEmail())
                 .password(encoder.encode(signUpRequest.getPassword()))
                 .role(role)
-                .validationToken(jwt)
+                .validationToken(jwtToken.getToken())
                 .build();
 
         signupUserRepository.save(user);
@@ -90,7 +88,10 @@ public class AuthService {
                         .recipientFirstName(signUpRequest.getFirstName())
                         .recipientLastName(signUpRequest.getLastName())
                         .subject("Anodiam Registration Confirmation")
-                        .validationToken(new String(Base64.getEncoder().withoutPadding().encode(jwt.getBytes(StandardCharsets.UTF_8))))
+                        .validationToken(JwtToken.builder()
+                                .token(new String(Base64.getEncoder().withoutPadding().encode(jwtToken.getToken().getBytes(StandardCharsets.UTF_8))))
+                                .expiresOn(jwtToken.getExpiresOn())
+                                .build())
                         .notificationType(NotificationRequest.NotificationType.STUDENT_SIGNUP)
                         .build());
         return new MessageResponse("User registered successfully!");
@@ -98,12 +99,12 @@ public class AuthService {
 
     public MessageResponse validateUser(final String token) {
         String jwt = new String(Base64.getDecoder().decode(token.getBytes(StandardCharsets.UTF_8)));
-        if(!jwtUtils.validateJwtToken(jwt)) {
+        if (!jwtUtils.validateJwtToken(jwt)) {
             throw new InvalidTokenException("Error: Invalid Token");
         }
         String email = jwtUtils.getUserNameFromJwtToken(jwt);
         SignupUser signupUser = signupUserRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("Error: Registration is not found."));
-        if(!jwt.equals(signupUser.getValidationToken())) {
+        if (!jwt.equals(signupUser.getValidationToken())) {
             throw new InvalidTokenException("Error: Invalid Token");
         }
         User user = User.builder()
@@ -146,7 +147,7 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
+        JwtToken jwtToken = jwtUtils.generateJwtToken(loginRequest.getEmail());
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         List<String> roles = userDetails.getAuthorities().stream()
@@ -155,7 +156,7 @@ public class AuthService {
 
         return JwtResponse.builder()
                 .type(JwtResponse.TOKEN_TYPE)
-                .token(jwt)
+                .token(jwtToken)
                 .id(userDetails.getId())
                 .username(userDetails.getUsername())
                 .roles(roles)
