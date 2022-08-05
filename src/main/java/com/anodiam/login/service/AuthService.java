@@ -77,6 +77,7 @@ public class AuthService {
                 .collect(Collectors.toList());
 
         return JwtResponse.builder()
+                .type(JwtResponse.TOKEN_TYPE)
                 .token(jwt)
                 .id(userDetails.getId())
                 .username(userDetails.getUsername())
