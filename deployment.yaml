@@ -15,12 +15,12 @@ spec:
     spec:
       containers:
         - name: anodiam-login-service
-          image: us-central1-docker.pkg.dev/anodiamgcpproject/anodiam-repo/anodiam-login-service:v12
+          image: us-central1-docker.pkg.dev/anodiamgcpproject/anodiam-repo/anodiam-login-service:v14
           ports:
             - containerPort: 8080
           env:
             - name: SPRING_PROFILES_ACTIVE
-              value: "h2"
+              value: "pg"
             - name: BCRYPT_SALT
               valueFrom:
                 secretKeyRef:
