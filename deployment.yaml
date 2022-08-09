@@ -15,33 +15,9 @@ spec:
     spec:
       containers:
         - name: anodiam-login-service
-          image: us-central1-docker.pkg.dev/anodiamgcpproject/anodiam-repo/anodiam-login-service:v14
+          image: us-central1-docker.pkg.dev/anodiamgcpproject/anodiam-repo/anodiam-login-service:v18
           ports:
             - containerPort: 8080
           env:
             - name: SPRING_PROFILES_ACTIVE
-              value: "pg"
-            - name: BCRYPT_SALT
-              valueFrom:
-                secretKeyRef:
-                  name: anodiam-secrets
-                  key: BCRYPT_SALT
-                  optional: false
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: anodiam-secrets
-                  key: JWT_SECRET
-                  optional: false
-            - name: DB_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: anodiam-secrets
-                  key: DB_SECRET
-                  optional: false
-            - name: SMTP_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: anodiam-secrets
-                  key: SMTP_SECRET
-                  optional: false
+              value: "gcp"
