@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: anodiam-login-service
-          image: us-central1-docker.pkg.dev/anodiamgcpproject/anodiam-repo/anodiam-login-service:v19
+          image: APP_IMAGE
           ports:
             - containerPort: 8080
           env:
