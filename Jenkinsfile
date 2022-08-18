@@ -5,7 +5,7 @@ pipeline {
     APP_NAME = "anodiam-login-service"
     FE_SVC_NAME = "${APP_NAME}-frontend"
     CLUSTER = "jenkins-cd"
-    CLUSTER_ZONE = "us-central1-c"
+    CLUSTER_ZONE = "us-central1"
     IMAGE_TAG = "${CLUSTER_ZONE}-docker.pkg.dev/${PROJECT}/anodiam-repo/${APP_NAME}:v${env.BUILD_NUMBER}"
     JENKINS_CRED = "${PROJECT}"
   }
@@ -21,8 +21,6 @@ metadata:
 labels:
   component: ci
 spec:
-  # Use service account that can deploy to all namespaces
-  # serviceAccountName: cd-jenkins
   containers:
   - name: gcloud
     image: gcr.io/cloud-builders/gcloud
@@ -45,6 +43,18 @@ spec:
         }
       }
     }
-
+    stage('Deploy Dev') {
+      // Feature branch
+      when { branch 'feature/*' }
+      steps {
+        container('kubectl') {
+          // Change deployed image in canary to the one we just built
+          sh("sed -i.bak 's#APP_IMAGE#${IMAGE_TAG}#' ./k8s/*.yaml")
+          withKubeConfig([namespace: 'dev-ns']) {
+                sh 'kubectl apply -f ./k8s/deployment.yaml'
+              }
+        }
+      }
+    }
   }
 }
