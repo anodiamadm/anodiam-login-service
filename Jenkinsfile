@@ -35,20 +35,20 @@ spec:
 }
   }
   stages {
-    stage('Build and push image with Container Builder') {
-      steps {
-        container('gcloud') {
-          sh "PYTHONUNBUFFERED=1 gcloud builds submit -t ${IMAGE_TAG} ."
-        }
-      }
-    }
+    //stage('Build and push image with Container Builder') {
+    //  steps {
+    //    container('gcloud') {
+    //      sh "PYTHONUNBUFFERED=1 gcloud builds submit -t ${IMAGE_TAG} ."
+    //    }
+    //  }
+    //}
     stage('Deploy Dev') {
       // Feature branch
       when { branch 'feature/**' }
       steps {
         container('kubectl') {
           // Change deployed image to the one we just built
-          sh("sed -i.bak 's#APP_IMAGE#${IMAGE_TAG}#' ./k8s/*.yaml")
+          //sh("sed -i.bak 's#APP_IMAGE#${IMAGE_TAG}#' ./k8s/*.yaml")
           withKubeConfig([namespace: 'dev-ns']) {
             sh 'kubectl apply -f ./k8s'
           }
