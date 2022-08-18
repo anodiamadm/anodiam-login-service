@@ -3,7 +3,6 @@ pipeline {
   environment {
     PROJECT = "anodiamgcpproject"
     APP_NAME = "anodiam-login-service"
-    TARGET_NAMESPACE = "dev-ns"
     CLUSTER_ZONE = "us-central1"
     IMAGE_TAG = "${CLUSTER_ZONE}-docker.pkg.dev/${PROJECT}/anodiam-repo/${APP_NAME}:v${env.BUILD_NUMBER}"
     JENKINS_CRED = "${PROJECT}"
@@ -49,7 +48,7 @@ spec:
         container('kubectl') {
           // Change deployed image to the one we just built
           sh("sed -i.bak 's#APP_IMAGE#${IMAGE_TAG}#' ./k8s/*.yaml")
-          sh 'kubectl apply -namespace=${TARGET_NAMESPACE} -f ./k8s/deployment.yaml'
+          sh 'kubectl apply -namespace=dev-ns -f ./k8s/deployment.yaml'
         }
       }
     }
