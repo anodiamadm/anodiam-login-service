@@ -26,11 +26,6 @@ spec:
     command:
     - cat
     tty: true
-  - name: kubectl
-    image: gcr.io/cloud-builders/kubectl
-    command:
-    - cat
-    tty: true
 """
 }
   }
@@ -46,13 +41,10 @@ spec:
       // Feature branch
       when { branch 'feature/**' }
       steps {
-        container('kubectl') {
-          // Change deployed image to the one we just built
           sh("sed -i.bak 's#APP_IMAGE#${IMAGE_TAG}#' ./k8s/*.yaml")
           withKubeConfig([namespace: 'dev-ns', credentialsId: 'anodiam-kubectl-cred']) {
             sh 'kubectl apply -f ./k8s'
           }
-        }
       }
     }
   }
