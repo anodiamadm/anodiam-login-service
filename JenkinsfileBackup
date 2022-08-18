@@ -12,7 +12,7 @@ pipeline {
 
   agent {
     kubernetes {
-      label 'sample-app'
+      label 'anodiam-login-service'
       defaultContainer 'jnlp'
       yaml """
 apiVersion: v1

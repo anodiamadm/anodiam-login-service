@@ -1,16 +1,24 @@
-pipeline {
-   agent any
+def label = "gcloud-command-${UUID.randomUUID().toString()}"
 
-stages {
-    stage('Run gcloud') {
+podTemplate(label: label, yaml: """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: gcloud
+    image: gcr.io/cloud-builders/gcloud
+    command:
+    - cat
+    tty: true
+"""
+  ) {
 
-        steps {
-            withEnv(['GCLOUD_PATH=/var/jenkins_home/google-cloud-sdk/bin']) {
-                sh '$GCLOUD_PATH/gcloud --version'
-            }
-
-
-         }
+  node(label) {
+    stage('Test -  Execution of gcloud command') {
+      container('gcloud') {
+        sh "gcloud compute zones --help"
       }
-   }
+    }
+
+  }
 }
