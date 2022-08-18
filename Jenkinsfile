@@ -20,6 +20,7 @@ metadata:
 labels:
   component: ci
 spec:
+  serviceAccountName: jenkins-admin
   containers:
   - name: gcloud
     image: gcr.io/cloud-builders/gcloud
