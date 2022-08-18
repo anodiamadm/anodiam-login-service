@@ -44,14 +44,12 @@ spec:
     }
     stage('Deploy Dev') {
       // Feature branch
-      when { branch 'feature/subrata/*' }
+      when { branch 'feature/**' }
       steps {
         container('kubectl') {
           // Change deployed image to the one we just built
           sh("sed -i.bak 's#APP_IMAGE#${IMAGE_TAG}#' ./k8s/*.yaml")
-          withKubeConfig([namespace: '${TARGET_NAMESPACE}']) {
-            sh 'kubectl apply -f ./k8s/deployment.yaml'
-          }
+          sh 'kubectl apply -namespace=${TARGET_NAMESPACE} -f ./k8s/deployment.yaml'
         }
       }
     }
