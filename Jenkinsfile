@@ -3,8 +3,7 @@ pipeline {
   environment {
     PROJECT = "anodiamgcpproject"
     APP_NAME = "anodiam-login-service"
-    FE_SVC_NAME = "${APP_NAME}-frontend"
-    CLUSTER = "jenkins-cd"
+    TARGET_NAMESPACE = "dev-ns"
     CLUSTER_ZONE = "us-central1"
     IMAGE_TAG = "${CLUSTER_ZONE}-docker.pkg.dev/${PROJECT}/anodiam-repo/${APP_NAME}:v${env.BUILD_NUMBER}"
     JENKINS_CRED = "${PROJECT}"
@@ -12,7 +11,7 @@ pipeline {
 
   agent {
     kubernetes {
-      label 'anodiam-login-service'
+      label '${APP_NAME}'
       defaultContainer 'jnlp'
       yaml """
 apiVersion: v1
@@ -45,14 +44,14 @@ spec:
     }
     stage('Deploy Dev') {
       // Feature branch
-      when { branch 'feature/*' }
+      when { branch 'feature/subrata/*' }
       steps {
         container('kubectl') {
-          // Change deployed image in canary to the one we just built
+          // Change deployed image to the one we just built
           sh("sed -i.bak 's#APP_IMAGE#${IMAGE_TAG}#' ./k8s/*.yaml")
-          withKubeConfig([namespace: 'dev-ns']) {
-                sh 'kubectl apply -f ./k8s/deployment.yaml'
-              }
+          withKubeConfig([namespace: '${TARGET_NAMESPACE}']) {
+            sh 'kubectl apply -f ./k8s/deployment.yaml'
+          }
         }
       }
     }
