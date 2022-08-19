@@ -50,9 +50,10 @@ spec:
         container('kubectl') {
           // Change deployed image to the one we just built
           //sh("sed -i.bak 's#APP_IMAGE#${IMAGE_TAG}#' ./k8s/*.yaml")
-          withKubeConfig([namespace: 'dev-ns']) {
-            sh 'kubectl apply -f ./k8s'
-          }
+          sh 'kubectl apply -n dev-ns -f ./k8s'
+          //withKubeConfig([namespace: 'dev-ns']) {
+          //  sh 'kubectl apply -n dev-ns -f ./k8s'
+          //}
         }
       }
     }
