@@ -51,7 +51,7 @@ spec:
         container('kubectl') {
           // Change deployed image to the one we just built
           //sh("sed -i.bak 's#APP_IMAGE#${IMAGE_TAG}#' ./k8s/*.yaml")
-          sh "PYTHONUNBUFFERED=1 gcloud container clusters get-credentials gke_anodiamgcpproject_us-central1-c_cluster-anodiam-dev --region=${CLUSTER_ZONE}"
+          sh "PYTHONUNBUFFERED=1 gcloud container clusters get-credentials cluster-anodiam-dev --region=${CLUSTER_ZONE}"
           sh 'kubectl apply -n dev-ns -f ./k8s'
           //withKubeConfig([namespace: 'dev-ns', credentialsId: 'anodian.system', serverUrl: 'https://34.133.91.63']) {
           //  sh 'kubectl apply -f ./k8s'
