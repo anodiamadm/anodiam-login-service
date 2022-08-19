@@ -46,18 +46,12 @@ spec:
         }
       }
     }
-    stage('Login to K8S cluster') {
-      steps {
-        container('gcloud') {
-          sh "PYTHONUNBUFFERED=1 gcloud container clusters get-credentials ${CLUSTER_NAME} --zone=${CLUSTER_ZONE}"
-        }
-      }
-    }
     stage('Deploy Dev') {
       // Feature branch
       when { branch 'feature/**' }
       steps {
         container('kubectl') {
+          sh "PYTHONUNBUFFERED=1 gcloud container clusters get-credentials ${CLUSTER_NAME} --zone=${CLUSTER_ZONE}"
           sh("sed -i.bak 's#APP_IMAGE#${IMAGE_TAG}#' ./k8s/*.yaml")
           sh 'kubectl apply -n dev-ns -f ./k8s'
         }
