@@ -52,7 +52,7 @@ spec:
           // Change deployed image to the one we just built
           //sh("sed -i.bak 's#APP_IMAGE#${IMAGE_TAG}#' ./k8s/*.yaml")
           //sh 'kubectl apply -n dev-ns -f ./k8s'
-          withKubeConfig([namespace: 'dev-ns', credentialsId: 'anodian.system', serverUrl: 'https://kubernetes.default']) {
+          withKubeConfig([namespace: 'dev-ns', credentialsId: 'anodian.system', serverUrl: 'https://34.133.91.63']) {
             sh 'kubectl apply -f ./k8s'
           }
         }
