@@ -22,6 +22,8 @@ metadata:
 labels:
   component: cicd
 spec:
+  serviceAccountName: jenkins-admin
+  automountServiceAccountToken: false
   containers:
   - name: gcloud
     image: gcr.io/cloud-builders/gcloud
