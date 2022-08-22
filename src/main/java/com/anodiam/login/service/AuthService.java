@@ -168,7 +168,7 @@ public class AuthService {
                     .map(item -> item.getAuthority())
                     .collect(Collectors.toList());
 
-            return new ApiResponse(ResponseCode.SERVER_ERROR,
+            return new ApiResponse(ResponseCode.SUCCESS,
                     "OK",
                     JwtResponse.builder()
                     .type(JwtResponse.TOKEN_TYPE)
