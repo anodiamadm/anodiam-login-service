@@ -1,6 +1,8 @@
 package com.anodiam.login.security.jwt;
 
 import com.anodiam.core.JwtToken;
+import com.anodiam.login.payload.response.MessageCode;
+import com.anodiam.login.payload.response.MessageResponse;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,22 +43,34 @@ public class JwtUtils {
     return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
   }
 
-  public boolean validateJwtToken(String authToken) {
+  public MessageResponse validateJwtToken(String authToken) {
+    MessageCode messageCode;
+    String message = "OK";
     try {
       Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
-      return true;
+      messageCode = MessageCode.SUCCESS;
     } catch (SignatureException e) {
       logger.error("Invalid JWT signature: {}", e.getMessage());
+      messageCode = MessageCode.BAD_REQUEST;
+      message = "Invalid JWT signature: " +  e.getMessage();
     } catch (MalformedJwtException e) {
       logger.error("Invalid JWT token: {}", e.getMessage());
+      messageCode = MessageCode.BAD_REQUEST;
+      message = "Invalid JWT token: " +  e.getMessage();
     } catch (ExpiredJwtException e) {
       logger.error("JWT token is expired: {}", e.getMessage());
+      messageCode = MessageCode.BAD_REQUEST;
+      message = "JWT token is expired: " +  e.getMessage();
     } catch (UnsupportedJwtException e) {
       logger.error("JWT token is unsupported: {}", e.getMessage());
+      messageCode = MessageCode.BAD_REQUEST;
+      message = "JWT token is unsupported: " +  e.getMessage();
     } catch (IllegalArgumentException e) {
       logger.error("JWT claims string is empty: {}", e.getMessage());
+      messageCode = MessageCode.BAD_REQUEST;
+      message = "JWT claims string is empty: " +  e.getMessage();
     }
 
-    return false;
+    return new MessageResponse(messageCode, message, null);
   }
 }

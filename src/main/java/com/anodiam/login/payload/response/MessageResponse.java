@@ -7,6 +7,12 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class MessageResponse {
+public class MessageResponse<T> {
+  private MessageCode messageCode;
   private String message;
+  private T data;
+
+  public boolean isOk() {
+    return messageCode.equals(MessageCode.SUCCESS);
+  }
 }

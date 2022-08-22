@@ -1,9 +1,9 @@
 package com.anodiam.login.controllers;
 
-import com.anodiam.login.exception.EmailInUseException;
 import com.anodiam.login.models.AnodiamRole;
 import com.anodiam.login.payload.request.LoginRequest;
 import com.anodiam.login.payload.request.SignupRequest;
+import com.anodiam.login.payload.response.MessageCode;
 import com.anodiam.login.payload.response.MessageResponse;
 import com.anodiam.login.service.AuthService;
 import org.springframework.http.ResponseEntity;
@@ -24,22 +24,34 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(authService.authenticateUser(loginRequest));
+        return buildResponseEntity(authService.authenticateUser(loginRequest));
     }
 
     @PutMapping("/signup/{role}")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest, @Valid @NotNull @PathVariable("role") AnodiamRole role) {
-        try{
-            return ResponseEntity.ok(authService.registerUser(signUpRequest, role));
-        } catch(EmailInUseException ex) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse(ex.getMessage()));
-        }
+        return buildResponseEntity(authService.registerUser(signUpRequest, role));
     }
 
     @GetMapping("/validate")
     public ResponseEntity<?> validateUser(@RequestParam("_t") final String token) {
-        return ResponseEntity.ok(authService.validateUser(token));
+        return buildResponseEntity(authService.validateUser(token));
+    }
+
+    private ResponseEntity<?> buildResponseEntity(final MessageResponse<?> messageResponse) {
+        if(messageResponse.getMessageCode().equals(MessageCode.SUCCESS)) {
+            return ResponseEntity.ok(messageResponse);
+        } else if(messageResponse.getMessageCode().equals(MessageCode.BAD_REQUEST)) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(messageResponse);
+        } else if(messageResponse.getMessageCode().equals(MessageCode.SERVER_ERROR)) {
+            return ResponseEntity
+                    .internalServerError()
+                    .body(messageResponse);
+        } else {
+            return ResponseEntity
+                    .unprocessableEntity()
+                    .body(messageResponse);
+        }
     }
 }
