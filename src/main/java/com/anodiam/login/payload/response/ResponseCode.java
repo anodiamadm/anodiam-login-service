@@ -1,6 +1,6 @@
 package com.anodiam.login.payload.response;
 
-public enum MessageCode {
+public enum ResponseCode {
     SUCCESS,
     BAD_REQUEST,
     SERVER_ERROR;

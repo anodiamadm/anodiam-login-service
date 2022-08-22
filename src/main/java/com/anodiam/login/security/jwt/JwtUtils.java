@@ -1,8 +1,8 @@
 package com.anodiam.login.security.jwt;
 
 import com.anodiam.core.JwtToken;
-import com.anodiam.login.payload.response.MessageCode;
-import com.anodiam.login.payload.response.MessageResponse;
+import com.anodiam.login.payload.response.ResponseCode;
+import com.anodiam.login.payload.response.ApiResponse;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,34 +43,34 @@ public class JwtUtils {
     return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
   }
 
-  public MessageResponse validateJwtToken(String authToken) {
-    MessageCode messageCode;
+  public ApiResponse validateJwtToken(String authToken) {
+    ResponseCode responseCode;
     String message = "OK";
     try {
       Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
-      messageCode = MessageCode.SUCCESS;
+      responseCode = ResponseCode.SUCCESS;
     } catch (SignatureException e) {
       logger.error("Invalid JWT signature: {}", e.getMessage());
-      messageCode = MessageCode.BAD_REQUEST;
+      responseCode = ResponseCode.BAD_REQUEST;
       message = "Invalid JWT signature: " +  e.getMessage();
     } catch (MalformedJwtException e) {
       logger.error("Invalid JWT token: {}", e.getMessage());
-      messageCode = MessageCode.BAD_REQUEST;
+      responseCode = ResponseCode.BAD_REQUEST;
       message = "Invalid JWT token: " +  e.getMessage();
     } catch (ExpiredJwtException e) {
       logger.error("JWT token is expired: {}", e.getMessage());
-      messageCode = MessageCode.BAD_REQUEST;
+      responseCode = ResponseCode.BAD_REQUEST;
       message = "JWT token is expired: " +  e.getMessage();
     } catch (UnsupportedJwtException e) {
       logger.error("JWT token is unsupported: {}", e.getMessage());
-      messageCode = MessageCode.BAD_REQUEST;
+      responseCode = ResponseCode.BAD_REQUEST;
       message = "JWT token is unsupported: " +  e.getMessage();
     } catch (IllegalArgumentException e) {
       logger.error("JWT claims string is empty: {}", e.getMessage());
-      messageCode = MessageCode.BAD_REQUEST;
+      responseCode = ResponseCode.BAD_REQUEST;
       message = "JWT claims string is empty: " +  e.getMessage();
     }
 
-    return new MessageResponse(messageCode, message, null);
+    return new ApiResponse(responseCode, message, null);
   }
 }

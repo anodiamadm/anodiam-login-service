@@ -3,8 +3,8 @@ package com.anodiam.login.controllers;
 import com.anodiam.login.models.AnodiamRole;
 import com.anodiam.login.payload.request.LoginRequest;
 import com.anodiam.login.payload.request.SignupRequest;
-import com.anodiam.login.payload.response.MessageCode;
-import com.anodiam.login.payload.response.MessageResponse;
+import com.anodiam.login.payload.response.ResponseCode;
+import com.anodiam.login.payload.response.ApiResponse;
 import com.anodiam.login.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,21 +37,21 @@ public class AuthController {
         return buildResponseEntity(authService.validateUser(token));
     }
 
-    private ResponseEntity<?> buildResponseEntity(final MessageResponse<?> messageResponse) {
-        if(messageResponse.getMessageCode().equals(MessageCode.SUCCESS)) {
-            return ResponseEntity.ok(messageResponse);
-        } else if(messageResponse.getMessageCode().equals(MessageCode.BAD_REQUEST)) {
+    private ResponseEntity<?> buildResponseEntity(final ApiResponse<?> apiResponse) {
+        if(apiResponse.getResponseCode().equals(ResponseCode.SUCCESS)) {
+            return ResponseEntity.ok(apiResponse);
+        } else if(apiResponse.getResponseCode().equals(ResponseCode.BAD_REQUEST)) {
             return ResponseEntity
                     .badRequest()
-                    .body(messageResponse);
-        } else if(messageResponse.getMessageCode().equals(MessageCode.SERVER_ERROR)) {
+                    .body(apiResponse);
+        } else if(apiResponse.getResponseCode().equals(ResponseCode.SERVER_ERROR)) {
             return ResponseEntity
                     .internalServerError()
-                    .body(messageResponse);
+                    .body(apiResponse);
         } else {
             return ResponseEntity
                     .unprocessableEntity()
-                    .body(messageResponse);
+                    .body(apiResponse);
         }
     }
 }

@@ -11,8 +11,8 @@ import com.anodiam.login.models.User;
 import com.anodiam.login.payload.request.LoginRequest;
 import com.anodiam.login.payload.request.SignupRequest;
 import com.anodiam.login.payload.response.JwtResponse;
-import com.anodiam.login.payload.response.MessageCode;
-import com.anodiam.login.payload.response.MessageResponse;
+import com.anodiam.login.payload.response.ResponseCode;
+import com.anodiam.login.payload.response.ApiResponse;
 import com.anodiam.login.repository.RoleRepository;
 import com.anodiam.login.repository.SignupUserRepository;
 import com.anodiam.login.repository.UserRepository;
@@ -65,9 +65,9 @@ public class AuthService {
         this.jwtUtils = jwtUtils;
     }
 
-    public MessageResponse registerUser(final SignupRequest signUpRequest, final AnodiamRole role) {
+    public ApiResponse registerUser(final SignupRequest signUpRequest, final AnodiamRole role) {
         if (userRepository.existsByEmail(signUpRequest.getEmail()) || signupUserRepository.existsByEmail(signUpRequest.getEmail())) {
-            return new MessageResponse(MessageCode.BAD_REQUEST, "Email is already in use!", null);
+            return new ApiResponse(ResponseCode.BAD_REQUEST, "Email is already in use!", null);
         }
 
         try {
@@ -98,24 +98,24 @@ public class AuthService {
                                     .build())
                             .notificationType(NotificationRequest.NotificationType.STUDENT_SIGNUP)
                             .build());
-            return new MessageResponse(MessageCode.SUCCESS, "User registered successfully!", null);
+            return new ApiResponse(ResponseCode.SUCCESS, "User registered successfully!", null);
         } catch (Exception e) {
-            return new MessageResponse(MessageCode.SERVER_ERROR, StringUtils.isNotBlank(e.getMessage()) ? e.getMessage() : "Server Error", null);
+            return new ApiResponse(ResponseCode.SERVER_ERROR, StringUtils.isNotBlank(e.getMessage()) ? e.getMessage() : "Server Error", null);
         }
 
     }
 
-    public MessageResponse validateUser(final String token) {
+    public ApiResponse validateUser(final String token) {
         try {
             String jwt = new String(Base64.getDecoder().decode(token.getBytes(StandardCharsets.UTF_8)));
-            MessageResponse validateJwtTokenResponse = jwtUtils.validateJwtToken(jwt);
+            ApiResponse validateJwtTokenResponse = jwtUtils.validateJwtToken(jwt);
             if (!validateJwtTokenResponse.isOk()) {
                 return validateJwtTokenResponse;
             }
             String email = jwtUtils.getUserNameFromJwtToken(jwt);
             SignupUser signupUser = signupUserRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("Error: Registration is not found."));
             if (!jwt.equals(signupUser.getValidationToken())) {
-                return new MessageResponse(MessageCode.BAD_REQUEST, "Invalid Token!", null);
+                return new ApiResponse(ResponseCode.BAD_REQUEST, "Invalid Token!", null);
             }
             User user = User.builder()
                     .firstName(signupUser.getFirstName())
@@ -149,13 +149,13 @@ public class AuthService {
             user.setRoles(roles);
             userRepository.save(user);
             signupUserRepository.deleteById(signupUser.getId());
-            return new MessageResponse(MessageCode.SUCCESS, "User validated successfully!", null);
+            return new ApiResponse(ResponseCode.SUCCESS, "User validated successfully!", null);
         } catch (Exception e) {
-            return new MessageResponse(MessageCode.SERVER_ERROR, StringUtils.isNotBlank(e.getMessage()) ? e.getMessage() : "Server Error", null);
+            return new ApiResponse(ResponseCode.SERVER_ERROR, StringUtils.isNotBlank(e.getMessage()) ? e.getMessage() : "Server Error", null);
         }
     }
 
-    public MessageResponse<JwtResponse> authenticateUser(final LoginRequest loginRequest) {
+    public ApiResponse<JwtResponse> authenticateUser(final LoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
@@ -168,7 +168,7 @@ public class AuthService {
                     .map(item -> item.getAuthority())
                     .collect(Collectors.toList());
 
-            return new MessageResponse(MessageCode.SERVER_ERROR,
+            return new ApiResponse(ResponseCode.SERVER_ERROR,
                     "OK",
                     JwtResponse.builder()
                     .type(JwtResponse.TOKEN_TYPE)
@@ -178,7 +178,7 @@ public class AuthService {
                     .roles(roles)
                     .build());
         } catch (Exception e) {
-            return new MessageResponse(MessageCode.SERVER_ERROR, StringUtils.isNotBlank(e.getMessage()) ? e.getMessage() : "Server Error", null);
+            return new ApiResponse(ResponseCode.SERVER_ERROR, StringUtils.isNotBlank(e.getMessage()) ? e.getMessage() : "Server Error", null);
         }
     }
 }
