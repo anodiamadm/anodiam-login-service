@@ -7,6 +7,7 @@ import com.anodiam.login.payload.response.ApiResponse;
 import com.anodiam.login.payload.response.ResponseCode;
 import com.anodiam.login.service.AuthService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ObjectUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +45,23 @@ public class AuthController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> validationError(MethodArgumentNotValidException ex) {
         BindingResult result = ex.getBindingResult();
-        final List<String> fieldErrors = result.getFieldErrors().stream().map(fieldError -> fieldError.toString()).collect(Collectors.toList());
+
+        final List<String> fieldErrors = result.getFieldErrors().stream().map(fieldError -> {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Field error in object '");
+            builder.append(fieldError.getObjectName());
+            builder.append("' on field '");
+            builder.append(fieldError.getField());
+            builder.append("': rejected value [");
+            builder.append(ObjectUtils.nullSafeToString(fieldError.getRejectedValue()));
+            builder.append("]");
+            builder.append(" reason [");
+            builder.append(fieldError.getField());
+            builder.append(" ");
+            builder.append(fieldError.getDefaultMessage());
+            builder.append("]");
+            return builder.toString();
+        }).collect(Collectors.toList());
         ApiResponse<List<String>> validationErrorResponse = new ApiResponse<>();
         validationErrorResponse.setResponseCode(ResponseCode.BAD_REQUEST);
         validationErrorResponse.setMessage("Invalid Input!!!");
