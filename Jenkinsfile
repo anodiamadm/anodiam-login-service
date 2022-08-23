@@ -49,12 +49,15 @@ spec:
         container('maven') {
           sh "mvn clean package -DskipTests"
           sh "ls -lrt"
+          sh "cd target"
+          sh "ls -lrt"
         }
       }
     }
     stage('Push image with Container Builder') {
       steps {
         container('gcloud') {
+          sh "ls -lrt"
           sh "PYTHONUNBUFFERED=1 gcloud builds submit -t ${IMAGE_TAG} ."
         }
       }
