@@ -1,6 +1,8 @@
 # For Java 11
 FROM adoptopenjdk/openjdk11:alpine-jre
 
+RUN ls -lrt
+
 COPY . /tmp/build/
 
 RUN ls -lrt /tmp/build/

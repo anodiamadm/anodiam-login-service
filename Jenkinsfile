@@ -30,16 +30,28 @@ spec:
     command:
     - cat
     tty: true
+    volumeMounts:
+    - mountPath: '/workspace'
+      name: sharedvolume
   - name: gcloud
     image: gcr.io/cloud-builders/gcloud
     command:
     - cat
     tty: true
+    volumeMounts:
+    - mountPath: '/workspace'
+      name: sharedvolume
   - name: kubectl
     image: gcr.io/cloud-builders/kubectl
     command:
     - cat
     tty: true
+    volumeMounts:
+    - mountPath: '/workspace'
+      name: sharedvolume
+  volumes:
+  - name: sharedvolume
+    emptyDir: {}
 """
 }
   }
