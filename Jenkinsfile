@@ -25,6 +25,11 @@ spec:
   serviceAccountName: jenkins-admin
   automountServiceAccountToken: false
   containers:
+  - name: maven
+    image: cr.io/cloud-builders/mvn
+    command:
+    - cat
+    tty: true
   - name: gcloud
     image: gcr.io/cloud-builders/gcloud
     command:
@@ -39,7 +44,14 @@ spec:
 }
   }
   stages {
-    stage('Build and push image with Container Builder') {
+    stage('Build Artifact') {
+      steps {
+        container('mvn') {
+          sh "mvn clean package -DskipTests"
+        }
+      }
+    }
+    stage('Push image with Container Builder') {
       steps {
         container('gcloud') {
           sh "PYTHONUNBUFFERED=1 gcloud builds submit -t ${IMAGE_TAG} ."
