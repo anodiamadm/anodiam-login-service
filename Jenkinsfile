@@ -25,21 +25,45 @@ spec:
   serviceAccountName: jenkins-admin
   automountServiceAccountToken: false
   containers:
+  - name: maven
+    image: gcr.io/cloud-builders/mvn
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - mountPath: '/workspace'
+      name: sharedvolume
   - name: gcloud
     image: gcr.io/cloud-builders/gcloud
     command:
     - cat
     tty: true
+    volumeMounts:
+    - mountPath: '/workspace'
+      name: sharedvolume
   - name: kubectl
     image: gcr.io/cloud-builders/kubectl
     command:
     - cat
     tty: true
+    volumeMounts:
+    - mountPath: '/workspace'
+      name: sharedvolume
+  volumes:
+  - name: sharedvolume
+    emptyDir: {}
 """
 }
   }
   stages {
-    stage('Build and push image with Container Builder') {
+    stage('Build Artifact') {
+      steps {
+        container('maven') {
+          sh "mvn clean package -DskipTests"
+        }
+      }
+    }
+    stage('Push image with Container Builder') {
       steps {
         container('gcloud') {
           sh "PYTHONUNBUFFERED=1 gcloud builds submit -t ${IMAGE_TAG} ."
