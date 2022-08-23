@@ -46,7 +46,7 @@ spec:
   stages {
     stage('Build Artifact') {
       steps {
-        container('mvn') {
+        container('maven') {
           sh "mvn clean package -DskipTests"
         }
       }
