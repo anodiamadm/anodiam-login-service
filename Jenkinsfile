@@ -66,6 +66,8 @@ spec:
     stage('Push image with Container Builder') {
       steps {
         container('gcloud') {
+          sh "ls -lrt"
+          sh "ls -lrt /workspace"
           sh "PYTHONUNBUFFERED=1 gcloud builds submit -t ${IMAGE_TAG} ."
         }
       }
