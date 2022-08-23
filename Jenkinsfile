@@ -25,11 +25,6 @@ spec:
   serviceAccountName: jenkins-admin
   automountServiceAccountToken: false
   containers:
-  - name: maven
-    image: cr.io/cloud-builders/mvn
-    command:
-    - cat
-    tty: true
   - name: gcloud
     image: gcr.io/cloud-builders/gcloud
     command:
