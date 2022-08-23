@@ -30,28 +30,16 @@ spec:
     command:
     - cat
     tty: true
-    volumeMounts:
-    - mountPath: '/workspace'
-      name: sharedvolume
   - name: gcloud
     image: gcr.io/cloud-builders/gcloud
     command:
     - cat
     tty: true
-    volumeMounts:
-    - mountPath: '/workspace'
-      name: sharedvolume
   - name: kubectl
     image: gcr.io/cloud-builders/kubectl
     command:
     - cat
     tty: true
-    volumeMounts:
-    - mountPath: '/workspace'
-      name: sharedvolume
-  volumes:
-  - name: sharedvolume
-    emptyDir: {}
 """
 }
   }
@@ -60,6 +48,8 @@ spec:
       steps {
         container('maven') {
           sh "mvn clean package -DskipTests"
+          sh "mkdir artifact"
+          sh "cp **/*.jar artifact"
         }
       }
     }
@@ -67,7 +57,6 @@ spec:
       steps {
         container('gcloud') {
           sh "ls -lrt"
-          sh "ls -lrt /workspace"
           sh "PYTHONUNBUFFERED=1 gcloud builds submit -t ${IMAGE_TAG} ."
         }
       }
