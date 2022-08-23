@@ -1,8 +1,14 @@
 # For Java 11
 FROM adoptopenjdk/openjdk11:alpine-jre
 
+COPY . /tmp/build/
+
+RUN ls -lrt /tmp/build/
+
+RUN ls -lrt /tmp/build/target
+
 # Copy jar
-COPY target/anodiam-login-service-0.0.1-SNAPSHOT.jar /anodiam-login-service.jar
+COPY tmp/build/target/anodiam-login-service-*.jar /anodiam-login-service.jar
 
 # Run
 ENTRYPOINT ["java", "-jar","/anodiam-login-service.jar"]
