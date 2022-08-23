@@ -48,6 +48,7 @@ spec:
       steps {
         container('maven') {
           sh "mvn clean package -DskipTests"
+          sh "ls -lrt"
         }
       }
     }
