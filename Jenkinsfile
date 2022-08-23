@@ -26,7 +26,7 @@ spec:
   automountServiceAccountToken: false
   containers:
   - name: maven
-    image: cr.io/cloud-builders/mvn
+    image: gcr.io/cloud-builders/mvn
     command:
     - cat
     tty: true
