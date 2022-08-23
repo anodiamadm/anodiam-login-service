@@ -49,8 +49,7 @@ spec:
         container('maven') {
           sh "mvn clean package -DskipTests"
           sh "ls -lrt"
-          sh "cd target"
-          sh "ls -lrt"
+          sh "ls -lrt target"
         }
       }
     }
