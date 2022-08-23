@@ -55,7 +55,7 @@ public class AuthController {
                 .build()).collect(Collectors.toList());
         ApiResponse<List<ValidationResult>> validationErrorResponse = new ApiResponse<>();
         validationErrorResponse.setResponseCode(ResponseCode.BAD_REQUEST);
-        validationErrorResponse.setMessage("Invalid Input!!!");
+        validationErrorResponse.setMessage("Invalid Input Provided");
         validationErrorResponse.setData(fieldErrors);
         return buildResponseEntity(validationErrorResponse);
     }
