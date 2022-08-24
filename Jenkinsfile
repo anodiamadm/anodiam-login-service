@@ -11,7 +11,9 @@ pipeline {
     JENKINS_CRED = "${PROJECT}"
   }
 
-
+  agent {
+      label "anodiam-jenkins-agent"
+  }
   stages {
     stage('Build Artifact') {
       steps {
