@@ -13,7 +13,7 @@ pipeline {
 
   agent {
     kubernetes {
-      label '${APP_NAME}'
+      inheritFrom 'maven-java-template'
       defaultContainer 'jnlp'
 }
   }
