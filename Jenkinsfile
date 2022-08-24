@@ -12,36 +12,7 @@ pipeline {
   }
 
   agent {
-    kubernetes {
-      label '${APP_NAME}'
-      defaultContainer 'jnlp'
-      yaml """
-apiVersion: v1
-kind: Pod
-metadata:
-labels:
-  component: cicd
-spec:
-  serviceAccountName: jenkins-admin
-  automountServiceAccountToken: false
-  containers:
-  - name: maven
-    image: gcr.io/cloud-builders/mvn
-    command:
-    - cat
-    tty: true
-  - name: gcloud
-    image: gcr.io/cloud-builders/gcloud
-    command:
-    - cat
-    tty: true
-  - name: kubectl
-    image: gcr.io/cloud-builders/kubectl
-    command:
-    - cat
-    tty: true
-"""
-}
+    label: "jenkins-anodiam-jenkins-agent"
   }
   stages {
     stage('Build Artifact') {
