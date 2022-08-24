@@ -12,7 +12,10 @@ pipeline {
   }
 
   agent {
-    label "jenkins-anodiam-jenkins-agent"
+    kubernetes {
+      label '${APP_NAME}'
+      defaultContainer 'jnlp'
+}
   }
   stages {
     stage('Build Artifact') {
