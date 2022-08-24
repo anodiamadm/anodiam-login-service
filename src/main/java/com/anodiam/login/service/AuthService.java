@@ -155,6 +155,7 @@ public class AuthService {
         }
     }
 
+    //TODO: Need to capture different exceptions for 401/500
     public ApiResponse<JwtResponse> authenticateUser(final LoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
