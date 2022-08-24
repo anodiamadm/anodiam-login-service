@@ -70,7 +70,7 @@ spec:
       steps {
         container('gcloud') {
           sh "ls -lrt"
-          sh "PYTHONUNBUFFERED=1 gcloud builds submit -t ${IMAGE_TAG} /workspace/artifact"
+          sh "PYTHONUNBUFFERED=1 gcloud builds submit -t ${IMAGE_TAG} ./artifact"
         }
       }
     }
