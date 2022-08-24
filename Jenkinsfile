@@ -12,7 +12,7 @@ pipeline {
   }
 
   agent {
-    label: "jenkins-anodiam-jenkins-agent"
+    label "jenkins-anodiam-jenkins-agent"
   }
   stages {
     stage('Build Artifact') {
