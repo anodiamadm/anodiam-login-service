@@ -16,6 +16,7 @@ spec:
       containers:
         - name: anodiam-login-service
           image: APP_IMAGE
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:
