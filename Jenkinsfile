@@ -11,12 +11,11 @@ pipeline {
     JENKINS_CRED = "${PROJECT}"
   }
 
-agent {
-  label "anodiam-jenkins-agent"
-kubernetes {
-  label '${APP_NAME}'
-  defaultContainer 'jnlp'
-  yaml """
+  agent {
+    kubernetes {
+      label '${APP_NAME}'
+      defaultContainer 'jnlp'
+      yaml """
 apiVersion: v1
 kind: Pod
 metadata:
@@ -42,8 +41,8 @@ spec:
     - cat
     tty: true
 """
-  }
 }
+  }
 
   stages {
     stage('Build Artifact') {
